@@ -1,0 +1,10 @@
+Poly [ADP-ribose] polymerase-1 || CHEMBL3105
+Coagulation factor VII || CHEMBL3991
+Serotonin 1b (5-HT1b) receptor || CHEMBL1898
+Serine/threonine-protein kinase B-raf || CHEMBL5145
+Tyrosine-protein kinase JAK2 || CHEMBL2971
+Tyrosine-protein kinase JAK1 || CHEMBL2835
+Epidermal growth factor receptor erbB1 || CHEMBL203
+Lysine-specific histone demethylase 1 || CHEMBL6136
+Serine/threonine-protein kinase AKT || CHEMBL4282
+Type-1 angiotensin II receptor || CHEMBL227
