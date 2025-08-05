@@ -8,98 +8,7 @@ class promptt:
         self.text = text
 
     def rule(self):
-        prompt = '''SMILES生成与校验结构化指南
-（分步骤任务执行模板）
-
-一、原子规范
-
-元素符号规则
-
-单原子：C O N → 正常价态无需括号
-
-双原子：Cl Br → 第二字母必须小写
-
-非常见价态：[Fe+3] [S-2]
-
-芳香原子：c1ccccc1（苯环）
-
-!错误检测!
-× Cl → ✗
-√ Cl → ✓
-
-二、化学键处理流程
-
-键类型优先级
-默认单键：CC（乙烷）
-双键：C=C（乙烯）
-三键：C#C（乙炔）
-芳香键：c:c（隐式）
-
-立体化学标记
-顺式：F/C=C/F
-反式：F\C=C\F
-四面体手性：C@Br → 顺时针
-C@@Br → 逆时针
-
-三、结构构建步骤
-
-主链构建
-线性结构：CCCC（丁烷）
-环状结构：C1CCCC1（环戊烷）
-
-分支处理
-单分支：CC(C)C（异丁烷）
-多分支：CC(C)(C)C（新戊烷）
-
-四、特殊元素处理规范
-
-氢原子标注
-必须显式的情况：
-
-带电：[H+]
-
-同位素：[2H]
-
-单质：[H][H]
-
-电荷表示标准
-单电荷：[Na+]
-多电荷：[Fe+3] 或 [Fe+++]
-
-五、复合结构处理
-
-分离组分：用.分隔
-[Na+].[Cl-]（氯化钠）
-CC(=O)O.CCO（乙酸+乙醇）
-
-环编号规则
-
-成对数字标记：C1CCCCC1
-
-避免数字冲突：C1CC2CCCC2C1
-
-六、验证检查清单
-
-语法校验点
-□ 所有非标准价态元素是否加[]
-□ 芳香环是否闭合（如c1ccccc1）
-□ 环编号是否成对出现
-□ 立体标记是否配套（@/@@，/与\）
-
-语义校验点
-□ 氢原子数量是否符合价键规则
-□ 电荷是否平衡（整体中性优先）
-□ 同位素标记是否正确（如[13C]）
-
-七、示例生成模板
-输入结构：环己烷（椅式构型）
-正确SMILES：C1CCCCC1
-
-输入结构：顺式二氯乙烯
-正确SMILES：Cl/C=C/Cl
-
-输入结构：硫酸根离子
-正确SMILES：S(=O)([O-])[O-]
+        prompt = '''Define the rule of generating SMILES of ligand.
         '''
         return prompt
         
@@ -204,7 +113,7 @@ xml
 </step2>
 <final>Final smiles</final>
 </design-process>
-###注意：请你生成最大环尺寸在8以下的分子。
+###Attention: Max Ring Size is smaller than 8.
         '''
         return prompt
     
@@ -226,7 +135,7 @@ xml
 </validation-summary>
 ###Attention: The entire process must ensure the generation of legal smiles!!!!!!!!!! The conditions for legal smiles:
 1. Grammar level: Atomic symbols must be valid (such as C, [Na+]), bond connections must be clear (single bonds can be omitted, double/triple bonds use=#), parentheses are closed in pairs, ring markers match numbers (such as C1CCCC1), aromatic atoms are lowercase (such as benzene c1ccccc1); 2. At the chemical level: the atomic valence state is reasonable (such as carbon not exceeding 4 bonds), the hydrogen atom is implicitly expressed (special explicit hydrogen such as [NH3]), the charge labeling is correct (such as [Fe+2]), and the overall structure is free of contradictions (such as ring energy closure and ion charge balance).
-###注意：请尽量避免以下情况的分子生成：①.出现分子数超过8的大环 ②.出现三个环共用一个分子的情况 ③.分子中杂原子太多 ④.分子中杂原子在同一个环中多次出现。
+###Attention: Please try to avoid the generation of molecules in the following situations: ① Large rings with more than 8 molecules appear The situation where three rings share a molecule ③ There are too many heteroatoms in the molecule. Heteroatoms in the molecule appear multiple times in the same ring.
 '''
         return prompt
     
@@ -255,10 +164,10 @@ xml
             return None
 
     def get_function(self,function,paper):
-        prompt = f'''你好，你是一个经验丰富的蛋白质靶点的配体生成专家。现在我会交给你{self.pref_name}蛋白质靶点的功能信息，请你研究这些信息：{function}。在研究完结构信息后，请你阅读目前与之相关的文献：{paper}。好了，在阅读完文献并体会过该靶点的功能信息后，请你尝试生成该靶点结合的配体的分子smiles表示。最终结果使用<smiles></smiles>包裹，以便后续提取。
+        prompt = f'''Hello, you are an experienced ligand generation expert for protein targets. Now I will give you the functional information of the protein target {self.pref_name}, please study this information: {function}. After studying the structural information, please read the current relevant literature: {paper}. Alright, after reading the literature and experiencing the functional information of this target, please try generating the molecular smiles representation of the ligand that binds to this target. The final result will be wrapped in<smiles></smiles>for subsequent extraction.
         '''
     def get_no_rag(self):
-        prompt = f'''请你生成{self.pref_name}靶点的配体分子smiles，使用<smiles></smiles>包裹，以便后续提取'''
+        prompt = f'''Please generate the ligand molecule smiles for the {self.pref_name} target and wrap them with<smiles></smiles>for subsequent extraction'''
         return prompt
 
         
