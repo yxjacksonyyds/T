@@ -2,6 +2,8 @@ from test import test
 import multiprocessing
 from multiprocessing import Process, Queue
 from contextlib import contextmanager
+import sys
+
 @contextmanager
 def timeout_managed(func, timeout, *args, **kwargs):
     queue = Queue()
@@ -18,7 +20,7 @@ def timeout_managed(func, timeout, *args, **kwargs):
     if p.is_alive():
         p.terminate()
         p.join()
-        yield None  # 超时返回 None
+        yield None  # Timeout returns None
     else:
         result = queue.get()
         if isinstance(result, Exception):
@@ -30,32 +32,28 @@ from rdkit import Chem
 
 def is_valid_smiles(smiles):
     """
-    判断给定的SMILES字符串是否合理。
+    Determine if the given SMILES string is valid.
 
-    :param smiles: str, SMILES字符串
-    :return: bool, 如果SMILES字符串合理则返回True，否则返回False
+    :param smiles: str, SMILES string
+    :return: bool, True if the SMILES string is valid, False otherwise
     """
     try:
-        # 尝试从SMILES字符串创建一个分子对象
+        # Try to create a molecule object from the SMILES string
         molecule = Chem.MolFromSmiles(smiles)
-        # 如果分子对象创建成功并且不是None，则SMILES字符串是合理的
+        # If molecule creation succeeds and is not None, the SMILES is valid
         return molecule is not None
     except:
-        # 如果在创建分子对象过程中出现异常，则SMILES字符串不合理
+        # If any exception occurs during creation, SMILES is invalid
         return False
 
-def get_score(smiles,pref_name):
+def get_score(smiles, pref_name):
     t = test()
-    qed,sa,affinity = t.cauculate(smiles,pref_name)
-    return qed,sa,affinity
+    qed, sa, affinity = t.cauculate(smiles, pref_name)
+    return qed, sa, affinity
 
 def avg(float_list):
     total_sum = sum(float_list)
-    
-    # 计算列表中值的数量
     count = len(float_list)
-    
-    # 计算平均数
     average = total_sum / count
     return average
 
@@ -65,35 +63,44 @@ def deal_file(path):
     SA = []
     time = 0
     valid = 0
-    with open(path,'r') as file:
+    with open(path, 'r') as file:
         for line in file:
             try:
-                print("1")
+                print("Processing line...")
                 sentence = line.split(' || ')
                 smiles = sentence[0]
                 pref_name = sentence[1][:-1]
-                # 使用带超时的上下文管理器执行get_score
+                
                 if is_valid_smiles(smiles):
                     with timeout_managed(get_score, 120, smiles, pref_name) as result:
                         if result is None:
                             print(f"Timeout for {smiles}, skipping...")
                             continue
-                        qed, sa, affinity = result  # 正确解包结果
+                        qed, sa, affinity = result
                         if affinity < -5:
                             Qed.append(qed)
                             SA.append(sa)
                             Affinity.append(affinity)
-                            valid = valid +1
-                            print(time,avg(Qed),avg(Affinity),avg(SA),valid)
-
+                            valid = valid + 1
+                            print(time, avg(Qed), avg(Affinity), avg(SA), valid)
                 else:
-                    print('invalid smiles')
-            except Exception:
+                    print('Invalid SMILES')
+            except Exception as e:
+                print(f"Error processing line: {str(e)}")
                 continue
             
             time = time + 1
-    return avg(Qed),avg(Affinity),avg(SA)
+    return avg(Qed), avg(Affinity), avg(SA)
 
 if __name__ == '__main__':
-    print(deal_file('/root/autodl-tmp/gpt4_shaixuan_jieguo.txt'))
-        
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <input_file_path>")
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    print(f"Processing file: {input_file}")
+    result = deal_file(input_file)
+    print("Final results:")
+    print(f"Average QED: {result[0]}")
+    print(f"Average Affinity: {result[1]}")
+    print(f"Average SA: {result[2]}")
