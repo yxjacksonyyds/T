@@ -8,4 +8,6 @@
 
 3. Quick Start:
 python main.py YOUR_PREF_NAME
+4. Quick test:
+python test.txt File_Name
 
